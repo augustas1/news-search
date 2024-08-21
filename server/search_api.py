@@ -1,15 +1,22 @@
 from database import connect_to_local_database
 from weaviate.classes.query import MetadataQuery
+from fastapi import FastAPI
 
-with connect_to_local_database() as client:
-    articles = client.collections.get("Article")
+app = FastAPI()
 
-    response = articles.query.near_text(
-        query="food crisis",
-        distance=0.6,
-        return_metadata=MetadataQuery(distance=True),
-    )
 
-    for o in response.objects:
-        print(o.properties)
-        print(o.metadata.distance)
+@app.get("/api/articles")
+def get_articles(query: str):
+    with connect_to_local_database() as client:
+        articles = client.collections.get("Article")
+
+        response = articles.query.near_text(
+            query=query,
+            distance=0.6,
+            return_metadata=MetadataQuery(distance=True),
+        )
+
+        return [
+            {**article.properties, "distance": article.metadata.distance}
+            for article in response.objects
+        ]
