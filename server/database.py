@@ -10,7 +10,10 @@ headers = {
 
 
 def connect_to_database():
-    return use_async_with_local(headers=headers)
+    if os.getenv("LOCAL"):
+        return use_async_with_local(headers=headers)
+    else:
+        return use_async_with_local(headers=headers, host="weaviate")
 
 
 async def main():

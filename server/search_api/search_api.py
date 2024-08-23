@@ -1,4 +1,4 @@
-from database import connect_to_database
+from ..database import connect_to_database
 from weaviate.classes.query import TargetVectors, MetadataQuery
 from fastapi import FastAPI
 

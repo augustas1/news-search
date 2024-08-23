@@ -33,8 +33,34 @@ services:
       # LocalStack configuration: https://docs.localstack.cloud/references/configuration/
       - DEBUG=${DEBUG:-0}
     volumes:
-      - "${LOCALSTACK_VOLUME_DIR:-./volume}:/var/lib/localstack"
+      - "/var/lib/localstack"
       - "/var/run/docker.sock:/var/run/docker.sock"
+
+  search_api:
+    build:
+      context: ./server
+      dockerfile: ./search_api/Dockerfile
+    ports:
+      - "8000:8000"
+    environment:
+      COHERE_APIKEY: ${COHERE_APIKEY}
+
+  news_worker:
+    build:
+      context: ./server
+      dockerfile: ./news_worker/Dockerfile
+    environment:
+      COHERE_APIKEY: ${COHERE_APIKEY}
+
+  news_provider:
+    build:
+      context: ./server
+      dockerfile: ./news_provider/Dockerfile
+
+  client:
+    build: ./client
+    ports:
+      - "80:80"
 
 volumes:
   weaviate_data:

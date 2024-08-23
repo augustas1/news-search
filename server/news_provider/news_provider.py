@@ -2,14 +2,14 @@ import asyncio
 import csv
 from datetime import datetime
 from zoneinfo import ZoneInfo
-from news_worker.article_queue import Article
-from sqs import get_sqs
+from server.news_worker.article_queue import Article
+from server.sqs import get_sqs
 from itertools import batched
 from types_aiobotocore_sqs.service_resource import Queue
 
 
 async def main():
-    with open("news_provider/bbc_news.csv") as csv_file:
+    with open("server/news_provider/bbc_news.csv") as csv_file:
         news_reader = csv.reader(csv_file)
 
         # skip the header
