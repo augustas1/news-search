@@ -1,5 +1,6 @@
+import asyncio
 import os
-from weaviate import connect_to_local
+from weaviate import use_async_with_local
 from weaviate.classes.config import Property, DataType, Configure
 
 cohere_key = os.getenv("COHERE_APIKEY")
@@ -8,24 +9,25 @@ headers = {
 }
 
 
-def connect_to_local_database():
-    return connect_to_local(headers=headers)
+def connect_to_database():
+    return use_async_with_local(headers=headers)
 
 
-if __name__ == "__main__":
-    with connect_to_local() as client:
-        # client.collections.delete_all()
+async def main():
+    async with connect_to_database() as client:
+        await client.collections.delete_all()
 
-        client.collections.create(
+        await client.collections.create(
             "Article",
             vectorizer_config=[
                 Configure.NamedVectors.text2vec_cohere(
-                    name="title_description_vector",
-                    source_properties=[
-                        "title",
-                        "description",
-                    ],
-                )
+                    name="title_vector",
+                    source_properties=["title"],
+                ),
+                Configure.NamedVectors.text2vec_cohere(
+                    name="description_vector",
+                    source_properties=["description"],
+                ),
             ],
             properties=[
                 Property(name="title", data_type=DataType.TEXT),
@@ -35,3 +37,7 @@ if __name__ == "__main__":
                 Property(name="description", data_type=DataType.TEXT),
             ],
         )
+
+
+if __name__ == "__main__":
+    asyncio.run(main())

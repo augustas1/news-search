@@ -1,18 +1,21 @@
-from database import connect_to_local_database
-from weaviate.classes.query import MetadataQuery
+from database import connect_to_database
+from weaviate.classes.query import TargetVectors, MetadataQuery
 from fastapi import FastAPI
 
 app = FastAPI()
 
 
 @app.get("/api/articles")
-def get_articles(query: str):
-    with connect_to_local_database() as client:
+async def get_articles(query: str):
+    async with connect_to_database() as client:
         articles = client.collections.get("Article")
 
-        response = articles.query.near_text(
+        response = await articles.query.near_text(
             query=query,
             distance=0.6,
+            target_vector=TargetVectors.manual_weights(
+                {"title_vector": 0.7, "description_vector": 0.3}
+            ),
             return_metadata=MetadataQuery(distance=True),
         )
 
