@@ -40,7 +40,7 @@ A couple of optimization steps are done in this service to make it more efficien
 - **Batches are processed in 10 simultaneous asyncio coroutines** (so the service is not waiting around doing nothing due to I/O when connecting to SQS).
 
 
-You check how many messages are in the queue using AWS CLI:
+You can check how many messages are in the queue using AWS CLI:
 ```
 aws --endpoint-url=http://127.0.0.1:4566 sqs get-queue-attributes --queue-url=http://sqs.eu-north-1.localhost.localstack.cloud:4566/000000000000/article --attribute-names=All
 ```
@@ -79,6 +79,9 @@ To make application production-ready, we need make sure it scales properly:
 ### Browser application
 To use it in production, SSL certificates should be setup, so no traffic data could be read by bad actors.
 
+### Search API
+Rate limiting should be implemented in the API to prevent abuse.
+
 ### Terraform
 To version cloud infrastructure and use it as code, Terraform could be used.
 
@@ -92,3 +95,12 @@ In real life the app would use serverless Weaviate could for scalability instead
 We should make sure connection pool is being used, because opening new connections can usually be resource consuming.
 
 Also, would be good to have schema versioning, although not sure if any tooling exists yet.
+
+### Monitoring
+To make sure the app is behaving properly in production few things should be implemented.
+
+**Logging** to see any ongoing issues in the app.
+
+**Monitoring** with a tool e.g. Datadog to track application performance using metrics.
+
+**Load testing** with tools like `k6` should be performed to find any performance or scalability issues beforehand. Also, to see how well app behaves durring traffic spikes.
